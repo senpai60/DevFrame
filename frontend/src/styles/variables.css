@@ -1,0 +1,57 @@
+:root {
+  --color-bg: #f5f7ff;
+  --color-bg-elevated: #ffffff;
+  --color-surface: rgba(255, 255, 255, 0.82);
+  --color-surface-strong: #ffffff;
+  --color-text: #07111f;
+  --color-text-muted: #5f6b7a;
+  --color-border: rgba(7, 17, 31, 0.08);
+  --color-accent: #5b5cf6;
+  --color-accent-strong: #4338ca;
+  --color-accent-soft: rgba(91, 92, 246, 0.12);
+  --color-success: #16a34a;
+  --color-shadow: rgba(7, 17, 31, 0.08);
+  --color-shadow-soft: rgba(7, 17, 31, 0.05);
+
+  --space-1: 0.5rem;
+  --space-2: 0.75rem;
+  --space-3: 1rem;
+  --space-4: 1.25rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-8: 2.5rem;
+  --space-10: 3rem;
+  --space-12: 4rem;
+  --space-16: 6rem;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: clamp(2rem, 4vw, 3rem);
+  --text-4xl: clamp(2.6rem, 5vw, 4rem);
+
+  --radius-sm: 0.5rem;
+  --radius-md: 0.9rem;
+  --radius-lg: 1.25rem;
+  --radius-xl: 1.75rem;
+
+  --font-sans: var(--font-geist-sans), "Inter", "Segoe UI", sans-serif;
+  --font-mono: var(--font-geist-mono), "SFMono-Regular", monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #040816;
+    --color-bg-elevated: #0d1428;
+    --color-surface: rgba(10, 17, 34, 0.82);
+    --color-surface-strong: #0d1428;
+    --color-text: #f5f7ff;
+    --color-text-muted: #96a1b3;
+    --color-border: rgba(255, 255, 255, 0.08);
+    --color-shadow: rgba(0, 0, 0, 0.3);
+    --color-shadow-soft: rgba(0, 0, 0, 0.2);
+  }
+}

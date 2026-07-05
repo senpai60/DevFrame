@@ -1,0 +1,31 @@
+:root {
+  --background: var(--color-bg);
+  --foreground: var(--color-text);
+  --surface: var(--color-surface);
+  --surface-strong: var(--color-surface-strong);
+  --muted: var(--color-text-muted);
+  --border: var(--color-border);
+  --accent: var(--color-accent);
+  --accent-strong: var(--color-accent-strong);
+  --accent-soft: var(--color-accent-soft);
+  --shadow: 0 24px 60px var(--color-shadow);
+  --shadow-soft: 0 10px 30px var(--color-shadow-soft);
+}
+
+body {
+  background:
+    radial-gradient(circle at top left, rgba(91, 92, 246, 0.16), transparent 24%),
+    var(--background);
+  color: var(--foreground);
+}
+
+::selection {
+  background: rgba(91, 92, 246, 0.24);
+  color: var(--foreground);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+  }
+}
