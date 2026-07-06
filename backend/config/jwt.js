@@ -16,4 +16,10 @@ export const generateRefreshToken = (userId, expiresIn) => {
   });
 };
 
-
+export const verifyToken = (token, secret) => {
+  try {
+    return jwt.verify(token, secret);
+  } catch (error) {
+    return null;
+  }
+};
