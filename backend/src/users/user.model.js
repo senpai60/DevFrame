@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema(
     avatar: { type: String },
     bio: { type: String },
     skills: { type: [String], default: [] },
-    githubUsername: { type: String, required: True },
+    githubUsername: { type: String, required: true },
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     following: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     refreshToken: { type: String },
