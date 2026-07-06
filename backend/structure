@@ -1,0 +1,38 @@
+backend/
+│
+├── src/
+│   │
+│   ├── modules/
+│   │   │
+│   │   ├── auth/
+│   │   │   ├── auth.controller.js
+│   │   │   ├── auth.service.js
+│   │   │   ├── auth.repository.js
+│   │   │   ├── auth.routes.js
+│   │   │   ├── auth.middleware.js
+│   │   │   ├── auth.validation.js
+│   │   │   └── auth.constants.js
+│   │   │
+│   │   ├── users/
+│   │   ├── repositories/
+│   │   ├── projects/
+│   │   ├── feed/
+│   │   ├── comments/
+│   │   ├── likes/
+│   │   ├── bookmarks/
+│   │   ├── search/
+│   │   └── notifications/
+│   │
+│   ├── config/
+│   ├── middleware/
+│   ├── services/
+│   ├── utils/
+│   ├── database/
+│   │    └── mongo.js
+│   │
+│   ├── app.js
+│   └── server.js
+│
+├── .env
+├── package.json
+└── README.md
