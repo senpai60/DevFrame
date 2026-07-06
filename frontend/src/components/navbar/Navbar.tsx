@@ -1,10 +1,11 @@
 import Link from "next/link";
 
 const navItems = [
-  { label: "Services", href: "#services" },
-  { label: "Legal framework", href: "#legal" },
-  { label: "About us", href: "#about" },
-  { label: "Contact us", href: "#contact" },
+  { label: "Features", href: "#features" },
+  { label: "Explore", href: "#explore" },
+  { label: "Community", href: "#community" },
+  { label: "About", href: "#about" },
+  { label: "Pricing", href: "#pricing" },
 ];
 
 export default function Navbar() {
@@ -13,7 +14,7 @@ export default function Navbar() {
       <div className="navbar__inner">
         <Link href="/" className="navbar__brand">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>
-          Monitor Capital Markets
+          DevFrame
         </Link>
 
         <nav className="navbar__nav" aria-label="Primary navigation">
@@ -23,10 +24,15 @@ export default function Navbar() {
             </Link>
           ))}
         </nav>
-
-        <Link href="#login" className="navbar__login">
-          Log in to your account
-        </Link>
+        
+        <div className="navbar__actions">
+          <Link href="#login" className="navbar__login">
+            Log in
+          </Link>
+          <Link href="#start" className="navbar__btn">
+            Get Started
+          </Link>
+        </div>
       </div>
     </header>
   );
