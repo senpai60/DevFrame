@@ -16,3 +16,7 @@ export const createUser = async (userData) => {
 export const updateUser = async (id, updateData) => {
   return await User.findByIdAndUpdate(id, updateData, { new: true });
 };
+
+export const findUserByUsername = async (username) => {
+  return await User.findOne({ username });
+};

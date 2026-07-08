@@ -5,6 +5,7 @@ import morgan from "morgan";
 import corsConfig from "./config/cors.config.js";
 import mainRouter from "./src/routes.js";
 import passport from "./config/passport.js";
+import { errorHandler } from "./middleware/error.middleware.js";
 
 const app = express();
 
@@ -15,5 +16,7 @@ app.use(morgan("dev"));
 app.use(passport.initialize());
 
 app.use("/api/v1", mainRouter);
+
+app.use(errorHandler);
 
 export default app;
