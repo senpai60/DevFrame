@@ -1,4 +1,8 @@
-import { generateAccessToken, generateRefreshToken, verifyToken } from "../../config/jwt.js";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyToken,
+} from "../../config/jwt.js";
 import * as authRepository from "./auth.repository.js";
 import { JWT_EXPIRES_IN, COOKIE_NAME, AUTH_ERRORS } from "./auth.constants.js";
 import { ENV_CONFIG } from "../../config/env.config.js";
@@ -8,7 +12,9 @@ export const githubCallback = async (req, res, next) => {
     const user = req.user;
 
     if (!user) {
-      return res.redirect(`${ENV_CONFIG.ALLOWED_ORIGINS[0]}/login?error=Authentication_failed`);
+      return res.redirect(
+        `${ENV_CONFIG.ALLOWED_ORIGINS[0]}/login?error=Authentication_failed`,
+      );
     }
 
     // Generate tokens
@@ -27,7 +33,9 @@ export const githubCallback = async (req, res, next) => {
     });
 
     // Redirect to frontend with access token
-    res.redirect(`${ENV_CONFIG.ALLOWED_ORIGINS[0]}/dashboard?token=${accessToken}`);
+    res.redirect(
+      `${ENV_CONFIG.ALLOWED_ORIGINS[0]}/dashboard?token=${accessToken}`,
+    );
   } catch (error) {
     next(error);
   }
@@ -44,7 +52,7 @@ export const getCurrentUser = async (req, res, next) => {
 export const refreshTokens = async (req, res, next) => {
   try {
     const refreshToken = req.cookies[COOKIE_NAME];
-    
+
     if (!refreshToken) {
       return res.status(401).json({ message: AUTH_ERRORS.UNAUTHORIZED });
     }
@@ -60,7 +68,10 @@ export const refreshTokens = async (req, res, next) => {
     }
 
     const newAccessToken = generateAccessToken(userRecord._id, "15m");
-    const newRefreshToken = generateRefreshToken(userRecord._id, JWT_EXPIRES_IN);
+    const newRefreshToken = generateRefreshToken(
+      userRecord._id,
+      JWT_EXPIRES_IN,
+    );
 
     await authRepository.saveRefreshToken(userRecord._id, newRefreshToken);
 
@@ -81,7 +92,10 @@ export const logout = async (req, res, next) => {
   try {
     const refreshToken = req.cookies[COOKIE_NAME];
     if (refreshToken) {
-      const decoded = verifyToken(refreshToken, ENV_CONFIG.REFRESH_TOKEN_SECRET);
+      const decoded = verifyToken(
+        refreshToken,
+        ENV_CONFIG.REFRESH_TOKEN_SECRET,
+      );
       if (decoded) {
         await authRepository.removeRefreshToken(decoded.id);
       }

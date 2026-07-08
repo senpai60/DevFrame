@@ -1,8 +1,6 @@
 import jwt from "jsonwebtoken";
-import { AUTH_ERRORS, JWT_EXPIRES_IN } from "./auth.constants.js";
+// import { AUTH_ERRORS, JWT_EXPIRES_IN } from "./auth.constants.js";
 import * as userRepository from "../users/user.repository.js";
-
-
 
 export const findOrCreateGithubUser = async (profile) => {
   try {
