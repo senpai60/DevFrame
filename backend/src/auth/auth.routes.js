@@ -15,6 +15,9 @@ router.get(
   authController.githubCallback
 );
 
+// Developer mock/bypass login for testing
+router.get("/mock-login", authController.mockLogin);
+
 // Get current user profile
 router.get("/me", protect, authController.getCurrentUser);
 

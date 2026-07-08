@@ -12,3 +12,7 @@ export const createUser = async (userData) => {
   const user = new User(userData);
   return await user.save();
 };
+
+export const updateUser = async (id, updateData) => {
+  return await User.findByIdAndUpdate(id, updateData, { new: true });
+};

@@ -6,6 +6,7 @@ import {
 import * as authRepository from "./auth.repository.js";
 import { JWT_EXPIRES_IN, COOKIE_NAME, AUTH_ERRORS } from "./auth.constants.js";
 import { ENV_CONFIG } from "../../config/env.config.js";
+import { findOrCreateGithubUser } from "./auth.service.js";
 
 export const githubCallback = async (req, res, next) => {
   try {
@@ -16,6 +17,42 @@ export const githubCallback = async (req, res, next) => {
         `${ENV_CONFIG.ALLOWED_ORIGINS[0]}/login?error=Authentication_failed`,
       );
     }
+
+    // Generate tokens
+    const accessToken = generateAccessToken(user._id, "15m");
+    const refreshToken = generateRefreshToken(user._id, JWT_EXPIRES_IN);
+
+    // Save refresh token to database
+    await authRepository.saveRefreshToken(user._id, refreshToken);
+
+    // Set refresh token as an HttpOnly cookie
+    res.cookie(COOKIE_NAME, refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
+    });
+
+    // Redirect to frontend with access token
+    res.redirect(
+      `${ENV_CONFIG.ALLOWED_ORIGINS[0]}/dashboard?token=${accessToken}`,
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const mockLogin = async (req, res, next) => {
+  try {
+    const mockProfile = {
+      username: "mockoctocat",
+      displayName: "Mock Octocat",
+      emails: [{ value: "mockoctocat@devframe.com" }],
+      photos: [{ value: "https://avatars.githubusercontent.com/u/583231?v=4" }],
+    };
+
+    // Pass the mock profile to the service layer to find or create the user in the DB
+    const user = await findOrCreateGithubUser(mockProfile);
 
     // Generate tokens
     const accessToken = generateAccessToken(user._id, "15m");
