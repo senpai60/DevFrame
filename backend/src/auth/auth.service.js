@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 // import { AUTH_ERRORS, JWT_EXPIRES_IN } from "./auth.constants.js";
 import * as userRepository from "../users/user.repository.js";
 
-export const findOrCreateGithubUser = async (profile) => {
+export const findOrCreateGithubUser = async (profile, accessToken = "") => {
   try {
     const { username, displayName, emails, photos } = profile;
     let email = emails && emails.length > 0 ? emails[0].value : null;
@@ -24,10 +24,14 @@ export const findOrCreateGithubUser = async (profile) => {
         githubUsername: username,
         email: email,
         avatar: photos && photos.length > 0 ? photos[0].value : "",
+        githubAccessToken: accessToken,
       });
-    } else if (user.email.includes("noreply.github.com") && !email.includes("noreply.github.com")) {
-      // If the user previously had a noreply email but we now have their real email, update it
-      user = await userRepository.updateUser(user._id, { email });
+    } else {
+      // Update the access token to ensure it remains fresh
+      user = await userRepository.updateUser(user._id, { 
+        githubAccessToken: accessToken || user.githubAccessToken, 
+        email 
+      });
     }
 
     return user;

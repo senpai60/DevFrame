@@ -29,8 +29,8 @@ passport.use(
     },
     async function (accessToken, refreshToken, profile, done) {
       try {
-        // Pass the profile to the service layer to find or create the user in the DB
-        const user = await authService.findOrCreateGithubUser(profile);
+        // Pass the profile and access token to the service layer to find or create the user in the DB
+        const user = await authService.findOrCreateGithubUser(profile, accessToken);
         return done(null, user);
       } catch (error) {
         return done(error, null);

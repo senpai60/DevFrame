@@ -19,6 +19,7 @@ const userSchema = new mongoose.Schema(
       facebook: { type: String, default: "" }
     },
     githubUsername: { type: String, required: true },
+    githubAccessToken: { type: String },
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     following: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     refreshToken: { type: String },

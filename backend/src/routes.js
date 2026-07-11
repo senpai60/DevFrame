@@ -1,11 +1,13 @@
 import { Router } from "express";
 import authRoutes from "./auth/auth.routes.js";
 import userRoutes from "./users/user.routes.js";
+import repositoryRoutes from "./repositories/repository.routes.js";
 
 const router = Router();
 
 router.use("/auth", authRoutes);
 router.use("/users", userRoutes);
+router.use("/repositories", repositoryRoutes);
 
 router.get("/health", (req, res) => {
   try {
