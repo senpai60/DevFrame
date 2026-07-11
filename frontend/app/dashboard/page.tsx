@@ -1,11 +1,23 @@
-import { Metadata } from "next";
-import DashboardClient from "./DashboardClient";
+"use client";
 
-export const metadata: Metadata = {
-  title: "Developer Dashboard — DevFrame",
-  description: "Manage your developer profile, view synced repositories, connect with the community, and track project metrics.",
-};
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-export default function DashboardPage() {
-  return <DashboardClient />;
+export default function DashboardRedirect() {
+  const router = useRouter();
+
+  useEffect(() => {
+    // Redirect preserving any query params (like tokens)
+    const search = window.location.search;
+    router.replace(`/app/dashboard${search}`);
+  }, [router]);
+
+  return (
+    <div className="loading-wrapper" style={{ display: "flex", flexDirection: "column", height: "100vh", alignItems: "center", justifyContent: "center", gap: "var(--space-4)", background: "var(--color-bg)" }}>
+      <div className="spinner"></div>
+      <p style={{ color: "var(--color-text-muted)", fontSize: "var(--text-sm)" }}>
+        Redirecting to dashboard...
+      </p>
+    </div>
+  );
 }
