@@ -95,6 +95,7 @@ export const syncRepositoriesFromGithub = async (user) => {
       fullName: repo.full_name,
       description: repo.description || "",
       url: repo.html_url,
+      homepage: repo.homepage || "",
       language: repo.language || "",
       stars: repo.stargazers_count || 0,
       forks: repo.forks_count || 0,
@@ -119,4 +120,12 @@ export const updateCodeShowcase = async (repoId, userId, codeFileName, codeSnipp
     throw new Error("Repository not found or access denied.");
   }
   return await repositoryRepo.updateRepository(repoId, { codeFileName, codeSnippet });
+};
+
+export const getRepositoryById = async (repoId, userId) => {
+  const repo = await repositoryRepo.findRepositoryById(repoId);
+  if (!repo || repo.userId.toString() !== userId.toString()) {
+    throw new Error("Repository not found or access denied.");
+  }
+  return repo;
 };

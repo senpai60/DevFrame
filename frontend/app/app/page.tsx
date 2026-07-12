@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "./layout";
 
@@ -260,9 +260,71 @@ const TRENDING_REPOS = [
 
 export default function FeedPage() {
   const { user } = useAuth();
-  const [posts, setPosts] = useState<Post[]>(INITIAL_POSTS);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [suggestedDevs, setSuggestedDevs] = useState(SUGGESTED_DEVELOPERS.map(d => ({ ...d, followed: false })));
   const [trendingRepos, setTrendingRepos] = useState(TRENDING_REPOS.map(r => ({ ...r, starred: false })));
+
+  // Load backend feed projects
+  useEffect(() => {
+    const fetchFeed = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/v1/projects/feed");
+        if (res.ok) {
+          const data = await res.json();
+          const getLangColor = (lang: string) => {
+            const colors: { [key: string]: string } = {
+              TypeScript: "#3178c6",
+              JavaScript: "#f1e05a",
+              Rust: "#dea584",
+              Python: "#3572A5",
+              CSS: "#563d7c",
+              HTML: "#e34c26",
+            };
+            return colors[lang] || "#797e8a";
+          };
+
+          const formatted: Post[] = (data.projects || []).map((p: any) => ({
+            id: p._id,
+            authorName: p.userId?.name || "GitHub Developer",
+            authorUsername: p.userId?.username || p.userId?.githubUsername || "dev",
+            authorAvatar: p.userId?.avatar || "https://avatars.githubusercontent.com/u/583231?v=4",
+            githubUsername: p.userId?.githubUsername || "dev",
+            caption: p.description,
+            tags: p.tags && p.tags.length > 0 ? p.tags : ["#webdev", "#showcase"],
+            createdAt: new Date(p.publishedAt).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            }),
+            repo: {
+              name: p.repositoryId?.name || "repository",
+              description: p.repositoryId?.description || "",
+              language: p.repositoryId?.language || "",
+              langColor: getLangColor(p.repositoryId?.language || ""),
+              stars: p.repositoryId?.stars || 0,
+              forks: p.repositoryId?.forks || 0,
+            },
+            imageUrl: p.images && p.images.length > 0 ? p.images[0] : undefined,
+            likes: p.likes ? p.likes.length : 0,
+            hasLiked: user ? (p.likes || []).includes(user._id) : false,
+            comments: (p.comments || []).map((c: any) => ({
+              id: c._id,
+              author: c.username,
+              avatar: c.avatar || "https://avatars.githubusercontent.com/u/583231?v=4",
+              text: c.text,
+              time: new Date(c.createdAt).toLocaleDateString(),
+            })),
+            hasStarred: false,
+          }));
+
+          setPosts(formatted);
+        }
+      } catch (err) {
+        console.error("Error fetching project feed:", err);
+      }
+    };
+    fetchFeed();
+  }, [user]);
 
   // Creator state
   const [caption, setCaption] = useState("");
@@ -288,7 +350,25 @@ export default function FeedPage() {
     }));
   };
 
-  const handleLike = (postId: string) => {
+  const handleLike = async (postId: string) => {
+    if (!postId.startsWith("post-")) {
+      const token = localStorage.getItem("accessToken");
+      if (token) {
+        try {
+          const res = await fetch(`http://localhost:5000/api/v1/projects/${postId}/like`, {
+            method: "PATCH",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          if (!res.ok) return;
+        } catch (err) {
+          console.error("Error liking project:", err);
+          return;
+        }
+      }
+    }
+
     setPosts(prev =>
       prev.map(post => {
         if (post.id === postId) {
@@ -328,10 +408,30 @@ export default function FeedPage() {
     setCommentInputs(prev => ({ ...prev, [postId]: text }));
   };
 
-  const handleCommentSubmit = (postId: string, e: React.FormEvent) => {
+  const handleCommentSubmit = async (postId: string, e: React.FormEvent) => {
     e.preventDefault();
     const commentText = commentInputs[postId]?.trim();
     if (!commentText || !user) return;
+
+    if (!postId.startsWith("post-")) {
+      const token = localStorage.getItem("accessToken");
+      if (token) {
+        try {
+          const res = await fetch(`http://localhost:5000/api/v1/projects/${postId}/comments`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ text: commentText }),
+          });
+          if (!res.ok) return;
+        } catch (err) {
+          console.error("Error commenting on project:", err);
+          return;
+        }
+      }
+    }
 
     setPosts(prev =>
       prev.map(post => {
@@ -376,9 +476,12 @@ export default function FeedPage() {
     );
   };
 
-  const handleCreatePost = (e: React.FormEvent) => {
+  const handleCreatePost = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!caption.trim() || !user) return;
+
+    const token = localStorage.getItem("accessToken");
+    if (!token) return;
 
     const langColors: { [key: string]: string } = {
       TypeScript: "#3178c6",
@@ -389,35 +492,70 @@ export default function FeedPage() {
       HTML: "#e34c26",
     };
 
-    const hasRepoInfo = repoName.trim().length > 0;
+    const finalRepoName = repoName.trim() || "showcase-repo";
+    const finalImageUrl = creatorTab === "image" 
+      ? (imageUrl.trim() || "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=800")
+      : "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=800";
 
-    const newPost: Post = {
-      id: `post-${Date.now()}`,
-      authorName: user.name || "GitHub Developer",
-      authorUsername: user.username || user.githubUsername,
-      authorAvatar: user.avatar || "https://avatars.githubusercontent.com/u/583231?v=4",
-      githubUsername: user.githubUsername,
-      caption: caption,
-      tags: caption.match(/#\w+/g) || [],
-      createdAt: "Just now",
-      likes: 0,
-      hasLiked: false,
-      hasStarred: false,
-      repo: {
-        name: repoName.trim() || "github-project",
-        description: repoDesc.trim() || "Showcase repository built on DevFrame.",
-        language: lang,
-        langColor: langColors[lang] || "#5b5cf6",
-        stars: 0,
-        forks: 0,
-        codeFileName: fileName.trim() || "App.tsx",
-        codeSnippet: creatorTab === "code" ? (snippet.trim() || undefined) : undefined,
-      },
-      imageUrl: creatorTab === "image" ? (imageUrl.trim() || "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=800") : undefined,
-      comments: [],
-    };
+    try {
+      const res = await fetch("http://localhost:5000/api/v1/projects", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          title: finalRepoName,
+          description: caption,
+          repositoryId: finalRepoName,
+          images: [finalImageUrl],
+          demoUrl: creatorTab === "image" ? imageUrl.trim() : "",
+          techStack: [lang],
+          tags: caption.match(/#\w+/g) || ["#webdev"],
+          visibility: "public",
+          status: "published",
+        }),
+      });
 
-    setPosts([newPost, ...posts]);
+      if (res.ok) {
+        const data = await res.json();
+        const p = data.project;
+
+        const newPost: Post = {
+          id: p._id,
+          authorName: user.name || "GitHub Developer",
+          authorUsername: user.username || user.githubUsername,
+          authorAvatar: user.avatar || "https://avatars.githubusercontent.com/u/583231?v=4",
+          githubUsername: user.githubUsername,
+          caption: p.description,
+          tags: p.tags && p.tags.length > 0 ? p.tags : ["#webdev"],
+          createdAt: "Just now",
+          likes: 0,
+          hasLiked: false,
+          hasStarred: false,
+          repo: {
+            name: finalRepoName,
+            description: repoDesc.trim() || "Showcase repository built on DevFrame.",
+            language: lang,
+            langColor: langColors[lang] || "#5b5cf6",
+            stars: 0,
+            forks: 0,
+            codeFileName: fileName.trim() || "App.tsx",
+            codeSnippet: creatorTab === "code" ? (snippet.trim() || undefined) : undefined,
+          },
+          imageUrl: finalImageUrl,
+          comments: [],
+        };
+
+        setPosts([newPost, ...posts]);
+      } else {
+        const errData = await res.json();
+        console.error("Backend post failed:", errData);
+      }
+    } catch (err) {
+      console.error("Network error posting showcase:", err);
+    }
+
     setCaption("");
     setRepoName("");
     setRepoDesc("");
@@ -558,7 +696,8 @@ export default function FeedPage() {
         </div>
 
         {/* Post Items */}
-        {posts.map((post) => {
+        {posts.length > 0 ? (
+          posts.map((post) => {
           const isCodeExpanded = expandedSnippets[post.id];
           return (
             <article key={post.id} className="feed-post">
@@ -777,7 +916,17 @@ export default function FeedPage() {
               </form>
             </article>
           );
-        })}
+        })
+        ) : (
+          <div style={{ textAlign: "center", padding: "var(--space-10)", background: "var(--saas-card-bg)", borderRadius: "var(--radius-md)", border: "1px solid var(--color-border)", marginTop: "var(--space-4)" }}>
+            <p style={{ color: "var(--color-text-muted)", fontSize: "var(--text-sm)", marginBottom: "var(--space-2)" }}>
+              No project showcases published on DevFrame yet.
+            </p>
+            <p style={{ color: "var(--saas-text-muted)", fontSize: "var(--text-xs)" }}>
+              Publish your first project using the creator card above, or sync a repository via the Repositories tab to showcase your build!
+            </p>
+          </div>
+        )}
       </section>
 
       {/* Right Suggestions Column */}

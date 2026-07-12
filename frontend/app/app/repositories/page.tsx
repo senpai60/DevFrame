@@ -85,7 +85,7 @@ export default function RepositoriesPage() {
           prev.map(r => (r._id === repoId ? { ...r, isSynced: data.repository.isSynced } : r))
         );
         if (data.repository.isSynced) {
-          alert(`"${repoName}" has been successfully featured on your profile page!`);
+          window.location.href = `/app/projects/create?repoId=${repoId}`;
         } else {
           alert(`"${repoName}" removed from featured list.`);
         }
@@ -211,13 +211,24 @@ export default function RepositoriesPage() {
                     </div>
                   </div>
 
-                  <button
-                    className="suggest-profile-btn"
-                    onClick={() => toggleSync(repo._id, repo.name)}
-                    style={{ color: repo.isSynced ? "#ef4444" : "#e0522e", fontWeight: 600, fontSize: "var(--text-xs)", background: "transparent", border: "none", cursor: "pointer" }}
-                  >
-                    {repo.isSynced ? "Remove Sync" : "Sync & Feature"}
-                  </button>
+                  <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
+                    {repo.isSynced && (
+                      <button
+                        className="suggest-profile-btn"
+                        onClick={() => window.location.href = `/app/projects/create?repoId=${repo._id}`}
+                        style={{ color: "var(--color-accent)", fontWeight: 600, fontSize: "var(--text-xs)", background: "transparent", border: "none", cursor: "pointer" }}
+                      >
+                        Create Project
+                      </button>
+                    )}
+                    <button
+                      className="suggest-profile-btn"
+                      onClick={() => toggleSync(repo._id, repo.name)}
+                      style={{ color: repo.isSynced ? "#ef4444" : "#e0522e", fontWeight: 600, fontSize: "var(--text-xs)", background: "transparent", border: "none", cursor: "pointer" }}
+                    >
+                      {repo.isSynced ? "Remove Sync" : "Sync & Feature"}
+                    </button>
+                  </div>
                 </div>
               </div>
             ))

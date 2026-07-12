@@ -38,3 +38,13 @@ export const updateCodeShowcase = async (req, res, next) => {
     next(error);
   }
 };
+
+export const getRepositoryById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const repo = await repositoryService.getRepositoryById(id, req.user._id);
+    res.status(200).json({ repository: repo });
+  } catch (error) {
+    next(error);
+  }
+};

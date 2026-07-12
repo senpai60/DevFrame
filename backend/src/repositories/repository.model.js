@@ -8,6 +8,7 @@ const repositorySchema = new mongoose.Schema(
     fullName: { type: String },
     description: { type: String, default: "" },
     url: { type: String },
+    homepage: { type: String, default: "" },
     language: { type: String, default: "" },
     stars: { type: Number, default: 0 },
     forks: { type: Number, default: 0 },
